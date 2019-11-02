@@ -23,7 +23,7 @@ async function fetchGraphQL(operationsDoc, operationName, variables) {
   return await result.json();
 }
 
-const operationsDoc = `
+/*const operationsDoc = `
   query MyQuery {
     version
     blocks(last: 100) {
@@ -41,9 +41,9 @@ const operationsDoc = `
       }
     }
   }
-`;
+`;*/
 
-function fetchMyQuery() {
+function fetchMyQuery(operationsDoc) {
   return fetchGraphQL(
     operationsDoc,
     "MyQuery",
@@ -51,20 +51,10 @@ function fetchMyQuery() {
   );
 }
 
-async function startFetchMyQuery() {
-  const { errors, data } = await fetchMyQuery();
 
-  if (errors) {
-    // handle those errors like a pro
-    console.error(errors);
-  }
 
-  // do something great with this precious data
-  console.log(data);
-}
-
-async function runQuery() {
-  const { errors, data } = await fetchMyQuery();
+async function runQuery(operationsDoc) {
+  const { errors, data } = await fetchMyQuery(operationsDoc);
 
   if (errors) {
     // handle those errors like a pro
@@ -77,4 +67,55 @@ async function runQuery() {
   return data
 }
 
-//startFetchMyQuery();
+const transactionsDoc = `
+  query MyQuery {
+    version
+    blocks {
+      nodes {
+        transactions {
+          userCommands {
+            amount
+            fee
+            to
+            from
+            isDelegation
+            memo
+          }
+        }
+      }
+    }
+  }
+`;
+
+const accountDoc = `
+  query MyQuery {
+    account(publicKey: "PLACEHOLDER") {
+      nonce
+      inferredNonce
+      receiptChainHash
+      delegate
+      votingFor
+      locked
+      balance {
+        total
+      }
+    }
+    blocks(last: 1) {
+      nodes {
+        protocolState {
+          consensusState {
+            totalCurrency
+          }
+        }
+      }
+    }
+  }
+`;
+
+async function getTransactions() {
+  return await runQuery(transactionsDoc)
+}
+
+async function getAccount(accountid) {
+  return await runQuery(accountDoc.replace("PLACEHOLDER", accountid))
+}

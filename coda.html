@@ -4,21 +4,64 @@
 		<script src="coda.js"></script>
 		<script type="text/javascript">
 			async function showData() {
-				const data = await runQuery()
-				const nodes = data.blocks.nodes
-				//console.log(nodes)
-				//const transactions = [].concat.apply([], nodes);
+				const accountid = document.getElementById("accountid").value
+
+				const blocksData = await getTransactions()
+				const nodes = blocksData.blocks.nodes
 				const nestedtransactions = nodes.map(elem => elem.transactions.userCommands)
-				const transactions = [].concat.apply([], nestedtransactions);
-				const delegations = transactions.filter(t => t.isDelegation)
-				console.log(delegations)
-				document.getElementById("data").innerHTML = JSON.stringify(transactions)
+				const transactions = [].concat.apply([], nestedtransactions)
+				console.log("transactions: ", transactions)
+				/*var sendMap = new Map()
+				for(t in transactions) {
+					if(sendMap.get(t.from) == null) sendMap.set(t.from, t.amount)
+					else {
+						const v = sendMap.get(t.from)
+						sendMap.set(t.from, v + t.balance)
+					}
+				}*/
+				console.log(JSON.stringify(transactions))
+
+				const accountData = await getAccount(accountid)
+				const balance = accountData.account.balance.total
+				const totalSupply = accountData.blocks.nodes[0].protocolState.consensusState.totalCurrency
+				const remainingSupply = totalSupply - balance;
+				console.log(balance, totalSupply)
+
+				var chart = new CanvasJS.Chart("chartContainer", {
+					animationEnabled: true,
+					title: {
+						text: "Your share of overall stake"
+					},
+					data: [{
+						type: "pie",
+						startAngle: 240,
+						yValueFormatString: "",
+						indexLabel: "{label} {y}",
+						dataPoints: [
+							{y: balance, label: "You"},
+							{y: remainingSupply, label: "Others"}
+						]
+					}]
+				});
+				chart.render();
+
 			}
 		</script>
 	</head>
 	<body>
-		<h1>Hello</h1>
-		<button onclick="showData()">Click me!</button>
-		<div id="data"></div>
+		<h1>Staker dashboard</h1>
+		<p>Your address:</p>
+		<input
+				type="text"
+				id="accountid"
+				value="tdNEHktzZep3DHVJJxvvtVD91ZoSvoLgtxAL7fCMGZC1Qtdso28DuuossMggsBgJkbhptzH2cFuQ7U5n6FaZraxA4sB6ex3xDHF8gEgdNYisfAg5n7eHUz4AAikM866fc7hCk9n7wrwMQj"
+				size="150"
+		>
+		</input><br />
+		<button onclick="showData()">Show my stats!</button>
+		<br/>
+		<br/>
+		<div id="chartContainer" style="height: 300px; width: 100%;"></div>
+		<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 	</body>
 </html>
