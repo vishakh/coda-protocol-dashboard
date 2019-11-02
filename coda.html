@@ -1,0 +1,24 @@
+<html>
+	<head>
+		<title>Hello, Coda!</title>
+		<script src="coda.js"></script>
+		<script type="text/javascript">
+			async function showData() {
+				const data = await runQuery()
+				const nodes = data.blocks.nodes
+				//console.log(nodes)
+				//const transactions = [].concat.apply([], nodes);
+				const nestedtransactions = nodes.map(elem => elem.transactions.userCommands)
+				const transactions = [].concat.apply([], nestedtransactions);
+				const delegations = transactions.filter(t => t.isDelegation)
+				console.log(delegations)
+				document.getElementById("data").innerHTML = JSON.stringify(transactions)
+			}
+		</script>
+	</head>
+	<body>
+		<h1>Hello</h1>
+		<button onclick="showData()">Click me!</button>
+		<div id="data"></div>
+	</body>
+</html>
