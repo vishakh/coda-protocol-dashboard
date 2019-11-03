@@ -2,6 +2,7 @@
 	<head>
 		<title>Hello, Coda!</title>
 		<script src="coda.js"></script>
+		<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 		<script type="text/javascript">
 			async function showData() {
 				const accountid = document.getElementById("accountid").value
@@ -11,15 +12,12 @@
 				const nestedtransactions = nodes.map(elem => elem.transactions.userCommands)
 				const transactions = [].concat.apply([], nestedtransactions)
 				console.log("transactions: ", transactions)
-				/*var sendMap = new Map()
-				for(t in transactions) {
-					if(sendMap.get(t.from) == null) sendMap.set(t.from, t.amount)
-					else {
-						const v = sendMap.get(t.from)
-						sendMap.set(t.from, v + t.balance)
-					}
-				}*/
-				console.log(JSON.stringify(transactions))
+				//console.log(JSON.stringify(transactions))
+
+				const createdBlocks = nodes.filter(node => node.creator == accountid).length
+				const totalBlocks = nodes.length
+				const othersBlocks = totalBlocks - createdBlocks
+				console.log("blocks: ", createdBlocks, totalBlocks)
 
 				const accountData = await getAccount(accountid)
 				const balance = accountData.account.balance.total
@@ -45,11 +43,30 @@
 				});
 				chart.render();
 
+				var chart2 = new CanvasJS.Chart("chartContainer2", {
+					animationEnabled: true,
+					title: {
+						text: "Your share of blocks"
+					},
+					data: [{
+						type: "pie",
+						startAngle: 240,
+						yValueFormatString: "",
+						indexLabel: "{label} {y}",
+						dataPoints: [
+							{y: createdBlocks, label: "You"},
+							{y: othersBlocks, label: "Others"}
+						]
+					}]
+				});
+				chart2.render();
+
 			}
 		</script>
 	</head>
 	<body>
 		<h1>Staker dashboard</h1>
+		<p>If you are staking on the Coda network, use the charts below to see how successful you are in proportion to your stake.</p>
 		<p>Your address:</p>
 		<input
 				type="text"
@@ -58,10 +75,11 @@
 				size="150"
 		>
 		</input><br />
-		<button onclick="showData()">Show my stats!</button>
+		<button onclick="showData()">Show my performance!</button>
 		<br/>
 		<br/>
 		<div id="chartContainer" style="height: 300px; width: 100%;"></div>
-		<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+		<br/>
+		<div id="chartContainer2" style="height: 300px; width: 100%;"></div>
 	</body>
 </html>

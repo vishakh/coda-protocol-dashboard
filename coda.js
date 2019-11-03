@@ -23,26 +23,6 @@ async function fetchGraphQL(operationsDoc, operationName, variables) {
   return await result.json();
 }
 
-/*const operationsDoc = `
-  query MyQuery {
-    version
-    blocks(last: 100) {
-      nodes {
-        transactions {
-          userCommands {
-            amount
-            fee
-            to
-            from
-            isDelegation
-            memo
-          }
-        }
-      }
-    }
-  }
-`;*/
-
 function fetchMyQuery(operationsDoc) {
   return fetchGraphQL(
     operationsDoc,
@@ -72,6 +52,7 @@ const transactionsDoc = `
     version
     blocks {
       nodes {
+        creator
         transactions {
           userCommands {
             amount
